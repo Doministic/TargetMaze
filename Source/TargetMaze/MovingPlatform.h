@@ -14,7 +14,12 @@ class TARGETMAZE_API AMovingPlatform : public AStaticMeshActor
 {
 	GENERATED_BODY()
 	
-private:
+public:
+	void AddActiveTrigger();
+	void RemoveActiveTrigger();
+
+	
+protected:
 	AMovingPlatform();
 
 	virtual void BeginPlay() override;
@@ -27,8 +32,13 @@ private:
 	UPROPERTY(EditAnywhere, meta = (MakeEditWidget = true))
 	FVector TargetLocation;
 
+	
+
+private:
 
 	FVector GlobalStartLocation;
-
 	FVector GlobalTargetLocation;
+
+	UPROPERTY(EditAnywhere)
+	int ActiveTrigger = 1;
 };
