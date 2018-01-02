@@ -4,13 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "MenuInterface.h"
 #include "PuzzlePlatformGameInstance.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TARGETMAZE_API UPuzzlePlatformGameInstance : public UGameInstance
+class TARGETMAZE_API UPuzzlePlatformGameInstance : public UGameInstance, public IMenuInterface
 {
 	GENERATED_BODY()
 	
@@ -30,4 +31,7 @@ public:
 	void LoadMenu();
 
 	TSubclassOf<class UUserWidget> MenuClass;
+
+private:
+	class UMainMenu* Menu;
 };					 

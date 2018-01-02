@@ -2,6 +2,7 @@
 
 #include "PuzzlePlatformGameInstance.h"
 #include "PlatformTrigger.h"
+#include "MainMenu.h"
 
 #include "Engine.h"
 #include "UObject/ConstructorHelpers.h"
@@ -27,24 +28,23 @@ void UPuzzlePlatformGameInstance::Init() {
 }
 
 void UPuzzlePlatformGameInstance::LoadMenu() {
-	if (!ensure(MenuClass != nullptr))return;
-	UUserWidget* Menu = CreateWidget<UUserWidget>(this, MenuClass);
-
-	Menu->AddToViewport();
-
-	APlayerController* PlayerController = GetFirstLocalPlayerController();
-	if (!ensure(PlayerController != nullptr))return;
-
-	FInputModeUIOnly InputData;
-	InputData.SetWidgetToFocus(Menu->TakeWidget());
-	InputData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 	
-	PlayerController->SetInputMode(InputData);
-	PlayerController->bShowMouseCursor = true;
+	Menu = CreateWidget<UMainMenu>(this, MenuClass);
+	if (!ensure(MenuClass != nullptr))return;
+
+	
+	Menu->SetUp();
+
+	Menu->SetMenuInterface(this);
 }
 
 
 void UPuzzlePlatformGameInstance::Host() {
+
+	if (Menu != nullptr) {
+		Menu->TearDown();
+	}
+
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine != nullptr))return;
 
@@ -53,10 +53,14 @@ void UPuzzlePlatformGameInstance::Host() {
 	UWorld* World = GetWorld();
 	if (!ensure(World != nullptr))return;
 
-	World->ServerTravel("/Game/PlatformerGame/Levels/Lobby");
+	World->ServerTravel("/Game/PlatformerGame/Levels/ThirdPersonExampleMap");
 }
 
 void UPuzzlePlatformGameInstance::Join(const FString& Address) {
+	if (Menu != nullptr) {
+		Menu->TearDown();
+	}
+	
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine != nullptr))return;
 
