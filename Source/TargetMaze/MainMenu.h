@@ -3,19 +3,27 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "MenuWidget.h"
+#include "Blueprint/UserWidget.h"
+#include "MenuInterface.h"
 #include "MainMenu.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class TARGETMAZE_API UMainMenu : public UMenuWidget
+class TARGETMAZE_API UMainMenu : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+	void SetMenuInterface(IMenuInterface*  MenuInterface);
+
+	void SetUp();
+
+	void TearDown();
+
 protected:
-	virtual bool Initialize();
+	bool Initialize();
 
 private:
 	UPROPERTY(meta = (BindWidget))
@@ -29,9 +37,6 @@ private:
 
 	UPROPERTY(meta = (BindWidget))
 	class UButton* ConfirmJoinButton;
-
-	UPROPERTY(meta = (BindWidget))
-	class UButton* QuitGameButton;
 
 	UPROPERTY(meta = (BindWidget))
 	class UWidgetSwitcher* MenuSwitcher;
@@ -57,6 +62,5 @@ private:
 	UFUNCTION()
 	void OpenMainMenu();
 
-	UFUNCTION()
-	void QuitGameButtonPressed();
+	IMenuInterface* MenuInterface;
 };

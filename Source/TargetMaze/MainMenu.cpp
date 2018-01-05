@@ -22,10 +22,43 @@ bool UMainMenu::Initialize() {
 	if (!ensure(ConfirmJoinButton != nullptr))return false;
 	ConfirmJoinButton->OnClicked.AddDynamic(this, &UMainMenu::JoinServer);
 
-	if (!ensure(QuitGameButton != nullptr))return false;
-	QuitGameButton->OnClicked.AddDynamic(this, &UMainMenu::QuitGameButtonPressed);
-
 	return true;
+}
+
+void UMainMenu::SetMenuInterface(IMenuInterface* MenuInterface) {
+	this->MenuInterface = MenuInterface;
+}
+
+void UMainMenu::SetUp() {
+	this->AddToViewport();
+
+	UWorld* World = GetWorld();
+	if (!ensure(World != nullptr))return;
+
+	APlayerController* PlayerController = World->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr))return;
+
+	FInputModeUIOnly InputData;
+	InputData.SetWidgetToFocus(this->TakeWidget());
+	InputData.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+	PlayerController->SetInputMode(InputData);
+	PlayerController->bShowMouseCursor = true;
+}									
+
+void UMainMenu::TearDown() {
+	this->RemoveFromViewport();
+
+	UWorld* World = GetWorld();
+	if (!ensure(World != nullptr))return;
+
+	APlayerController* PlayerController = World->GetFirstPlayerController();
+	if (!ensure(PlayerController != nullptr)) return;
+	
+	FInputModeGameOnly InputModeData;
+	PlayerController->SetInputMode(InputModeData);
+	
+	PlayerController->bShowMouseCursor = false;
 }
 
 void UMainMenu::HostServer() {
@@ -36,6 +69,7 @@ void UMainMenu::HostServer() {
 
 	World->ServerTravel("/Game/PlatformerGame/Levels/ThirdPersonExampleMap?listen");
 
+	if (!ensure(MenuInterface != nullptr))return;
 	if (MenuInterface != nullptr) {
 		MenuInterface->Host();
 	}
@@ -62,14 +96,4 @@ void UMainMenu::OpenMainMenu() {
 	if (!ensure(MenuSwitcher != nullptr))return;
 	if (!ensure(MainMenu != nullptr))return;
 	MenuSwitcher->SetActiveWidget(MainMenu);
-}
-
-void UMainMenu::QuitGameButtonPressed() {
-	UWorld* World = GetWorld();
-	if (!ensure(World != nullptr))return;
-
-	APlayerController* PlayerController = World->GetFirstPlayerController();
-	if (!ensure(PlayerController != nullptr))return;
-
-	PlayerController->ConsoleCommand("quit");
 }
