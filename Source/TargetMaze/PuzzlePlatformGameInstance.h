@@ -4,6 +4,8 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
+#include "OnlineSubsystem.h"
+
 #include "MenuInterface.h"
 #include "PuzzlePlatformGameInstance.generated.h"
 
@@ -17,12 +19,12 @@ class TARGETMAZE_API UPuzzlePlatformGameInstance : public UGameInstance, public 
 	
 
 public:
-	UPuzzlePlatformGameInstance();
+	UPuzzlePlatformGameInstance(const FObjectInitializer &ObjectInitializer);
 
 	virtual void Init();
 	
 	UFUNCTION(BlueprintCallable)
-	void LoadMenu();
+	void LoadMenuWidget();
 
 	UFUNCTION(BlueprintCallable)
 	void InGameLoadMenu();
@@ -41,4 +43,8 @@ private:
 
 	TSubclassOf<class UUserWidget> MenuClass;
 	TSubclassOf<class UUserWidget> InGameMenuClass;
+
+	IOnlineSessionPtr SessionInterface;
+
+	void OnCreateSessionComplete(FName SessionName, bool Success);
 };					 
