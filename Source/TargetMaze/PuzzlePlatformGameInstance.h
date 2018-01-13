@@ -37,6 +37,7 @@ public:
 	
 	virtual void LoadMainMenu();
 
+	virtual void RefreshServerList();
 
 private:
 	class UMainMenu* Menu;
@@ -45,6 +46,15 @@ private:
 	TSubclassOf<class UUserWidget> InGameMenuClass;
 
 	IOnlineSessionPtr SessionInterface;
+	TSharedPtr<class FOnlineSessionSearch> SessionSearch;
 
 	void OnCreateSessionComplete(FName SessionName, bool Success);
+	
+	void OnDestroySessionComplete(FName SessionName, bool Success);
+
+	void OnFindSessionsComplete(bool Success);
+
+	void CreateSession();
+
+
 };					 
