@@ -6,13 +6,12 @@
 #include "UObject/ConstructorHelpers.h"
 #include "Blueprint/UserWidget.h"
 #include "OnlineSessionSettings.h"
-#include "OnlineSessionInterface.h"
 
 #include "PlatformTrigger.h"
 #include "MainMenu.h"
 #include "MenuWidget.h"
 
-const static FName SESSION_NAME = "Wicked Session";
+const static FName SESSION_NAME = TEXT("Wicked Session");
 
 UPuzzlePlatformGameInstance::UPuzzlePlatformGameInstance(const FObjectInitializer &ObjectInitializer) {
 
@@ -40,6 +39,7 @@ void UPuzzlePlatformGameInstance::Init() {
 			SessionInterface->OnCreateSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformGameInstance::OnCreateSessionComplete);
 			SessionInterface->OnDestroySessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformGameInstance::OnDestroySessionComplete);
 			SessionInterface->OnFindSessionsCompleteDelegates.AddUObject(this, &UPuzzlePlatformGameInstance::OnFindSessionsComplete);	
+			SessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UPuzzlePlatformGameInstance::OnJoinSessionComplete);
 		}
 		else {
 			UE_LOG(LogTemp, Warning, TEXT("Session interface is not valid"));
@@ -145,15 +145,27 @@ void UPuzzlePlatformGameInstance::OnFindSessionsComplete(bool Success) {
 	}
 }
 
+void UPuzzlePlatformGameInstance::Join(uint32 Index) {
+	
+	if (!SessionInterface.IsValid())return;
+	if (!SessionSearch.IsValid())return;
 
-
-void UPuzzlePlatformGameInstance::Join(const FString& Address) {
 	if (Menu != nullptr) {
-		Menu->SetServerList({ Address });
-		//Menu->TearDown();
+		Menu->TearDown();
 	}
 	
-	/*
+	SessionInterface->JoinSession(0, SESSION_NAME, SessionSearch->SearchResults[Index]);
+}
+
+void UPuzzlePlatformGameInstance::OnJoinSessionComplete(FName SessionName, EOnJoinSessionCompleteResult::Type Result) {
+	if (!SessionInterface.IsValid())return;
+
+	FString Address;
+	if (!SessionInterface->GetResolvedConnectString(SessionName, Address)) {
+		UE_LOG(LogTemp, Warning, TEXT("Could Not Get ConnectString"));
+		return;
+	}
+
 	UEngine* Engine = GetEngine();
 	if (!ensure(Engine != nullptr))return;
 
@@ -162,9 +174,10 @@ void UPuzzlePlatformGameInstance::Join(const FString& Address) {
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!ensure(PlayerController != nullptr))return;
 
-	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);*/
+	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 }
-
+								
+									
 void UPuzzlePlatformGameInstance::LoadMainMenu() {
 	APlayerController* PlayerController = GetFirstLocalPlayerController();
 	if (!ensure(PlayerController != nullptr))return;
